@@ -1,23 +1,57 @@
-import logo from './logo.svg';
+import { useState, useEffect } from 'react';
 import './App.css';
 
+const fetchColors = async () => {
+  try {
+    const response = await fetch('http://localhost:3001/api/colors');
+    const json = await response.json();
+
+    return json.colors;
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+}
+
 function App() {
+  const [colors, setColors] = useState([]);
+
+  useEffect(() => {
+    const runEffect = async () => {
+      const colors = await fetchColors();
+
+      setColors(colors);
+    };
+
+    runEffect();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div
+      className={'colored_box_container'}
+    >
+      {
+        colors.map(({ color, id }) => {
+          return (
+            <div
+              key={id}
+              className={'colored_box'}
+              style={{
+                backgroundColor: color,
+              }}
+              onClick={() => {
+                const filteredColors = colors.filter(({ id: curId }) => {
+                  return id !== curId;
+                });
+
+                setColors(filteredColors);
+              }}
+            >
+              {color}
+            </div>
+          );
+        })
+      }
     </div>
   );
 }
